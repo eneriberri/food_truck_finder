@@ -1,1 +1,6 @@
 Backbone Index View!
+<ul>
+  <% _.each(trucks.models, function(model) { %>
+    <li><%= model.get("address") %></li>
+  <% }); %>
+</ul>

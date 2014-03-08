@@ -1,8 +1,4 @@
 FoodTruckFinder.Collections.FoodTrucks = Backbone.Collection.extend({
   url: 'http://data.sfgov.org/resource/rqzj-sfat.json',
-  model: FoodTruckFinder.Models.FoodTruck,
-  
-  initialize: function() {
-    this.fetch();
-  }
+  model: FoodTruckFinder.Models.FoodTruck
 })

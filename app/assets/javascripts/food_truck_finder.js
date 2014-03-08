@@ -4,13 +4,18 @@ window.FoodTruckFinder = {
   Views: {},
   Routers: {},
   initialize: function() {
-    FoodTruckFinder.trucks = new FoodTruckFinder.Collections.FoodTrucks();
-    console.log(FoodTruckFinder.trucks);
+    var trucks = new FoodTruckFinder.Collections.FoodTrucks();
+    trucks.fetch({
+      success: function() {
+        new FoodTruckFinder.Routers.Router({
+          "$rootEl": $(".content"),
+          "collection": trucks
+        });
     
-    new FoodTruckFinder.Routers.Router({
-      "$rootEl": $(".content")
-    });
-    Backbone.history.start();
+        Backbone.history.start();
+      }
+    })
+    
   }
 };
 

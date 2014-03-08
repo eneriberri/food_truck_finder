@@ -5,7 +5,11 @@ window.FoodTruckFinder = {
   Routers: {},
   initialize: function() {
     FoodTruckFinder.trucks = new FoodTruckFinder.Collections.FoodTrucks();
-    alert('Hello from Backbone!');
+    console.log(FoodTruckFinder.trucks);
+    
+    new FoodTruckFinder.Routers.Router({
+      "$rootEl": $(".content")
+    });
     Backbone.history.start();
   }
 };

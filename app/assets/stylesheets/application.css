@@ -11,3 +11,9 @@
  *= require_self
  *= require_tree .
  */
+
+input {
+  outline: none;
+  border: none;
+  width: 200px;
+}

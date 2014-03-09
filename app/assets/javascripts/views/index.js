@@ -2,10 +2,11 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   template: JST['index'],
   
   events: {
-    'click button': 'findFood'
-    // 'keypress .food': 'displayNext',
-    // 'keypress .location': 'displayNext',
-    // 'keypress .distance': 'displayNext'
+    'click button': 'findFood',
+    'click .food': 'displayNext',
+    'keypress .food': 'displayNext',
+    'keypress .location': 'displayNext',
+    'keypress .distance': 'displayNext'
   },
 
   render: function() {
@@ -108,23 +109,55 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   },
   
   codeAddress: function() {
-    console.log('codeAddress');
     var self = this;
     var address = $('#pac-input').val();
     console.log("address: " + address);
     geocoder = new google.maps.Geocoder();
     geocoder.geocode({ 'address': address}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
-        self.map.setCenter(results[0].geometry.location);
+        var loc = results[0].geometry.location;
+        console.log("geocode: " + loc);
+        self.map.setCenter(loc);
         var marker = new google.maps.Marker({
             map: self.map,
-            position: results[0].geometry.location
+            position: loc
         });
+        
+        self.computeDistance(loc);
       } else {
-        alert("Geocode was not successful for the following reason: " + status);
+        console.log("Geocode was not successful for the following reason: " + status);
       }
     });
   
+  },
+  
+  computeDistance: function(loc) {
+    //the distance function defaults to km.  
+       //to use miles add the radius of the earth in miles as the 3rd param.
+       //earths radius in miles == 3956.6
+       var self = this;
+       this.collection.each(function(truck) {
+         console.log(truck.get('latitude'));
+         var foodPos = new google.maps.LatLng(truck.get('latitude'), 
+                                              truck.get('longitude'));
+                                              
+         var distance = 
+           google.maps.geometry.spherical.computeDistanceBetween(
+              loc/* from LatLng */, 
+              foodPos/* to LatLng */, 
+              3956.6/* radius of the earth, earths radius in miles == 3956.6 */ 
+            );
+        
+          if (distance <= 1) { //less or equal to five miles
+            var marker = new google.maps.Marker({
+              map: self.map,
+              position: foodPos//LatLng
+            });              
+          }
+       });
+       
+
+    
   },
   
   // add markers to the map and zooms
@@ -139,15 +172,16 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     });
     this.map.setCenter(marker.getPosition());
     this.map.setZoom(12);
-  }
+  },
   
-  // displayNext: function(e) {
-  //   console.log('displayNexxt');
-  //   var nextInput = $(e.target).siblings('span')[0];
-  //   console.log(e.target);
-  //   if($(e.target).attr('id') == 'pac-input') nextInput = $(e.target).parent().siblings('span')[0];
-  //   console.log(nextInput);
-  //   $(nextInput).fadeIn();
-  // }
+  //fades in next input field
+  displayNext: function(e) {
+    var $nextInput = $($(e.target).parent().next()[0]);
+    
+    $nextInput.fadeIn(function() {
+      $nextInput.animate({top: 0});
+    });
+    
+  }
   
 })

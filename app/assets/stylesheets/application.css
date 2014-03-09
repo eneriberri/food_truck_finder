@@ -15,17 +15,21 @@
 body {
   font-family: 'Raleway', sans-serif;
   letter-spacing: 2px;
+  font-size: 24px;
+  overflow: hidden;
 }
 
 input {
   outline: none;
   border: none;
-  font-size: 16px;
+  font-size: 24px;
   letter-spacing: 2px;
 }
 
 .hidden {
   display: none;
+  position: relative;
+  top: 10px;
 }
 
 #pac-input {
@@ -37,6 +41,7 @@ button {
   color: white;
   background-color: black;
   padding: 10px;
+  font-size: 16px;
 }
 
 .form-container {

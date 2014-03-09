@@ -1,20 +1,20 @@
 <div class="form-container">
   <form action="index_submit" method="get" accept-charset="utf-8">
-    I seriously need some
-    <input list="food-type" name="food-type" placeholder="bacon" class="food" autofocus>
+    <div class="food">I seriously need some
+    <input list="food-type" name="food-type" placeholder="bacon" autofocus>
     <datalist id="food-type">
       <option value="tacos">
       <option value="cupcakes">
       <option value="hot dogs">
       <option value="pho">
       <option value="shoot, I don't know">
-    </datalist>
-    <br>
-    <span class="location">So find some for me near  
-    <input type="text" id="pac-input" class="controls" autocomplete="off" placeholder="the tenderloin"></span>
-    <br>
-    <span class="distance">And by near I mean within <input type="text" placeholder="10"> miles.</span>
-    <span class="submit-button"><p><button>Let's Do This</button></p></span>
+    </datalist></div>
+
+    <div class="location hidden">So find some for me near  
+    <input type="text" id="pac-input" class="controls" autocomplete="off" placeholder="the tenderloin"></div>
+
+    <div class="distance hidden">And by near I mean within <input type="text" placeholder="10"> miles.</div>
+    <div class="submit-button hidden"><p><button>Let's Do This</button></p></div>
   </form>
 </div>
 

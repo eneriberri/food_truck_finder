@@ -14,14 +14,13 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     console.log(this.collection);
     this.initializeMap();
     this.$el.html(renderedHTML);
-    // this.searchArea();
     return this;
   },
   
   // initialize the map
   initializeMap: function(){
     var mapOptions = {
-      zoom: 11,
+      zoom: 5,
       center: new google.maps.LatLng(37.7577,-122.4376)
     };
     
@@ -64,8 +63,8 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
           anchor: new google.maps.Point(17, 34),
           scaledSize: new google.maps.Size(25, 25)
         };
-  
-        //commenting out placing marker on map
+        
+        // commenting out placing marker on map
         // Create a marker for each place.
         // var marker = new google.maps.Marker({
         //   map: self.map,
@@ -79,9 +78,12 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
         bounds.extend(place.geometry.location);
       }
   
-      self.map.fitBounds(bounds);
+      // self.map.fitBounds(bounds);
+      
+      //set center to input address and zoom
+      self.map.setCenter(bounds.getCenter());
+      self.map.setZoom(17);
     });
-    // [END region_getplaces]
 
     // Bias the SearchBox results towards places that are within the bounds of the
     // current map's viewport.
@@ -95,28 +97,29 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   // shows map and sets markers
   findFood: function(e) {
     e.preventDefault();
-    
-    this.codeAddress();
+    console.log('findFood');
+    this.codeAddress(); //geocode the given address
     
     var speed = 1000;
     //fade in map and fade out form
     var self = this;
     $('#map-canvas').animate({opacity: 1, top: 0}, speed, function(){
       $('.form-container').fadeOut(speed);
-      self.addMarker();
+      // self.addMarker();
+      // self.setCenter();
     });
     
   },
   
+  //geoCode the given address
   codeAddress: function() {
     var self = this;
     var address = $('#pac-input').val();
-    console.log("address: " + address);
     geocoder = new google.maps.Geocoder();
+    
     geocoder.geocode({ 'address': address}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
         var loc = results[0].geometry.location;
-        console.log("geocode: " + loc);
         self.map.setCenter(loc);
         var marker = new google.maps.Marker({
             map: self.map,
@@ -124,6 +127,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
         });
         
         self.computeDistance(loc);
+        
       } else {
         console.log("Geocode was not successful for the following reason: " + status);
       }
@@ -132,12 +136,12 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   },
   
   computeDistance: function(loc) {
-    //the distance function defaults to km.  
+      //the distance function defaults to km.  
        //to use miles add the radius of the earth in miles as the 3rd param.
        //earths radius in miles == 3956.6
        var self = this;
        this.collection.each(function(truck) {
-         console.log(truck.get('latitude'));
+
          var foodPos = new google.maps.LatLng(truck.get('latitude'), 
                                               truck.get('longitude'));
                                               
@@ -148,9 +152,10 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
               3956.6/* radius of the earth, earths radius in miles == 3956.6 */ 
             );
         
-          if (distance <= 1) { //less or equal to five miles
+          if (distance <= .5) { //less or equal to 1/2 miles
             var marker = new google.maps.Marker({
               map: self.map,
+              animation: google.maps.Animation.DROP,
               position: foodPos//LatLng
             });              
           }
@@ -161,17 +166,29 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   },
   
   // add markers to the map and zooms
-  addMarker: function() {
-    var myLatlng = new google.maps.LatLng(37.7577,-122.4376);
+  // addMarker: function() {
+  //   var myLatlng = new google.maps.LatLng(37.7577,-122.4376);
+  //   var marker = new google.maps.Marker({
+  //       position: myLatlng,
+  //       animation: google.maps.Animation.DROP,
+  //       map: this.map,
+  //       title: "Hello World!",
+  //       descr: "Helloooo"
+  //   });
+  //   this.map.setCenter(marker.getPosition());
+  //   this.map.setZoom(12);
+  // },
+  
+  setCenter: function(loc) {
     var marker = new google.maps.Marker({
-        position: myLatlng,
+        position: loc,
         animation: google.maps.Animation.DROP,
         map: this.map,
         title: "Hello World!",
         descr: "Helloooo"
     });
     this.map.setCenter(marker.getPosition());
-    this.map.setZoom(12);
+    // this.map.setZoom(3);
   },
   
   //fades in next input field

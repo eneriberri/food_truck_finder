@@ -21,7 +21,15 @@ input {
   outline: none;
   border: none;
   font-size: 16px;
-  border-bottom: 1px solid black;
+  letter-spacing: 2px;
+}
+
+.hidden {
+  display: none;
+}
+
+#pac-input {
+  width: 400px;
 }
 
 button {

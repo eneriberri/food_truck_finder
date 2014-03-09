@@ -11,6 +11,7 @@ FoodTruckFinder.Routers.Router = Backbone.Router.extend({
   index: function() {
     var indexView = new FoodTruckFinder.Views.Index({collection: this.collection});
     this._swapView(indexView);
+    indexView.searchArea(); //sets up search box
   },
   
   //removes old view and its event handlers 

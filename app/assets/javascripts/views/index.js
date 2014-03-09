@@ -3,6 +3,9 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   
   events: {
     'click button': 'findFood'
+    // 'keypress .food': 'displayNext',
+    // 'keypress .location': 'displayNext',
+    // 'keypress .distance': 'displayNext'
   },
 
   render: function() {
@@ -10,9 +13,11 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     console.log(this.collection);
     this.initializeMap();
     this.$el.html(renderedHTML);
+    // this.searchArea();
     return this;
   },
   
+  // initialize the map
   initializeMap: function(){
     var mapOptions = {
       zoom: 11,
@@ -23,17 +28,106 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
       mapOptions);
   },
   
+  
+  //autcomplete search box
+  searchArea: function() {
+    
+    var self = this;
+  
+    var markers = [];
+
+    // Create the search box and link it to the UI element.
+    var input = document.getElementById('pac-input');
+
+    var searchBox = new google.maps.places.SearchBox(input);
+
+    // [START region_getplaces]
+    // Listen for the event fired when the user selects an item from the
+    // pick list. Retrieve the matching places for that item.
+    google.maps.event.addListener(searchBox, 'places_changed', function() {
+      var places = searchBox.getPlaces();
+      console.log(places);
+  
+      for (var i = 0, marker; marker = markers[i]; i++) {
+        marker.setMap(null);
+      }
+  
+      // For each place, get the icon, place name, and location.
+      markers = [];
+      var bounds = new google.maps.LatLngBounds();
+      for (var i = 0, place; place = places[i]; i++) {
+        var image = {
+          url: place.icon,
+          size: new google.maps.Size(71, 71),
+          origin: new google.maps.Point(0, 0),
+          anchor: new google.maps.Point(17, 34),
+          scaledSize: new google.maps.Size(25, 25)
+        };
+  
+        //commenting out placing marker on map
+        // Create a marker for each place.
+        // var marker = new google.maps.Marker({
+        //   map: self.map,
+        //   icon: image,
+        //   title: place.name,
+        //   position: place.geometry.location
+        // });
+        //   
+        // markers.push(marker);
+  
+        bounds.extend(place.geometry.location);
+      }
+  
+      self.map.fitBounds(bounds);
+    });
+    // [END region_getplaces]
+
+    // Bias the SearchBox results towards places that are within the bounds of the
+    // current map's viewport.
+    google.maps.event.addListener(this.map, 'bounds_changed', function() {
+      var bounds = self.map.getBounds();
+      searchBox.setBounds(bounds);
+    });
+    
+  },
+  
+  // shows map and sets markers
   findFood: function(e) {
     e.preventDefault();
-    var speed = 300;
+    
+    this.codeAddress();
+    
+    var speed = 1000;
     //fade in map and fade out form
     var self = this;
-    $('#map-canvas').animate({opacity: 1}, speed, function(){
+    $('#map-canvas').animate({opacity: 1, top: 0}, speed, function(){
       $('.form-container').fadeOut(speed);
       self.addMarker();
     });
+    
   },
   
+  codeAddress: function() {
+    console.log('codeAddress');
+    var self = this;
+    var address = $('#pac-input').val();
+    console.log("address: " + address);
+    geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ 'address': address}, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        self.map.setCenter(results[0].geometry.location);
+        var marker = new google.maps.Marker({
+            map: self.map,
+            position: results[0].geometry.location
+        });
+      } else {
+        alert("Geocode was not successful for the following reason: " + status);
+      }
+    });
+  
+  },
+  
+  // add markers to the map and zooms
   addMarker: function() {
     var myLatlng = new google.maps.LatLng(37.7577,-122.4376);
     var marker = new google.maps.Marker({
@@ -43,6 +137,17 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
         title: "Hello World!",
         descr: "Helloooo"
     });
+    this.map.setCenter(marker.getPosition());
+    this.map.setZoom(12);
   }
+  
+  // displayNext: function(e) {
+  //   console.log('displayNexxt');
+  //   var nextInput = $(e.target).siblings('span')[0];
+  //   console.log(e.target);
+  //   if($(e.target).attr('id') == 'pac-input') nextInput = $(e.target).parent().siblings('span')[0];
+  //   console.log(nextInput);
+  //   $(nextInput).fadeIn();
+  // }
   
 })

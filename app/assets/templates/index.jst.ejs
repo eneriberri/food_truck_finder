@@ -1,7 +1,7 @@
 <div class="form-container">
   <form action="index_submit" method="get" accept-charset="utf-8">
     I seriously need some
-    <input list="food-type" name="food-type" placeholder="bacon" autofocus>
+    <input list="food-type" name="food-type" placeholder="bacon" class="food" autofocus>
     <datalist id="food-type">
       <option value="tacos">
       <option value="cupcakes">
@@ -10,11 +10,11 @@
       <option value="shoot, I don't know">
     </datalist>
     <br>
-    Find some for me near  
-    <input type="text" placeholder="the tenderloin">
+    <span class="location">So find some for me near  
+    <input type="text" id="pac-input" class="controls" autocomplete="off" placeholder="the tenderloin"></span>
     <br>
-    And by near I mean within <input type="text" placeholder="10"> miles.
-    <p><button>Let's Do This</button></p>
+    <span class="distance">And by near I mean within <input type="text" placeholder="10"> miles.</span>
+    <span class="submit-button"><p><button>Let's Do This</button></p></span>
   </form>
 </div>
 

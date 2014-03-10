@@ -1,6 +1,10 @@
 FoodTruckFinder.Views.Index = Backbone.View.extend({
   template: JST['index'],
   
+  initialize: function(options) {
+    this.trucksInRange = options['trucksInRange'];
+  },
+  
   events: {
     'click button': 'findFood',
     'click .food': 'displayNext',
@@ -20,7 +24,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   // initialize the map
   initializeMap: function(){
     var mapOptions = {
-      zoom: 5,
+      zoom: 13,
       center: new google.maps.LatLng(37.7577,-122.4376)
     };
     
@@ -30,8 +34,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   
   
   //autcomplete search box
-  searchArea: function() {
-    
+  searchArea: function() {    
     var self = this;
   
     var markers = [];
@@ -41,7 +44,6 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
 
     var searchBox = new google.maps.places.SearchBox(input);
 
-    // [START region_getplaces]
     // Listen for the event fired when the user selects an item from the
     // pick list. Retrieve the matching places for that item.
     google.maps.event.addListener(searchBox, 'places_changed', function() {
@@ -53,7 +55,6 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
       }
   
       // For each place, get the icon, place name, and location.
-      markers = [];
       var bounds = new google.maps.LatLngBounds();
       for (var i = 0, place; place = places[i]; i++) {
         var image = {
@@ -63,22 +64,9 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
           anchor: new google.maps.Point(17, 34),
           scaledSize: new google.maps.Size(25, 25)
         };
-        
-        // commenting out placing marker on map
-        // Create a marker for each place.
-        // var marker = new google.maps.Marker({
-        //   map: self.map,
-        //   icon: image,
-        //   title: place.name,
-        //   position: place.geometry.location
-        // });
-        //   
-        // markers.push(marker);
   
         bounds.extend(place.geometry.location);
       }
-  
-      // self.map.fitBounds(bounds);
       
       //set center to input address and zoom
       self.map.setCenter(bounds.getCenter());
@@ -105,8 +93,6 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     var self = this;
     $('#map-canvas').animate({opacity: 1, top: 0}, speed, function(){
       $('.form-container').fadeOut(speed);
-      // self.addMarker();
-      // self.setCenter();
     });
     
   },
@@ -117,10 +103,12 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     var address = $('#pac-input').val();
     geocoder = new google.maps.Geocoder();
     
-    geocoder.geocode({ 'address': address}, function(results, status) {
-      if (status == google.maps.GeocoderStatus.OK) {
+    geocoder.geocode({'address': address}, function(results, status) {
+      if(status == google.maps.GeocoderStatus.OK) {
         var loc = results[0].geometry.location;
         self.map.setCenter(loc);
+        
+        //sets address marker
         var marker = new google.maps.Marker({
             map: self.map,
             position: loc
@@ -134,50 +122,38 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     });
   
   },
-  
+
+  //the distance function defaults to km.  
+  //to use miles add the radius of the earth in miles as the 3rd param.
+  //earths radius in miles == 3956.6
   computeDistance: function(loc) {
-      //the distance function defaults to km.  
-       //to use miles add the radius of the earth in miles as the 3rd param.
-       //earths radius in miles == 3956.6
-       var self = this;
-       this.collection.each(function(truck) {
 
-         var foodPos = new google.maps.LatLng(truck.get('latitude'), 
-                                              truck.get('longitude'));
-                                              
-         var distance = 
-           google.maps.geometry.spherical.computeDistanceBetween(
-              loc/* from LatLng */, 
-              foodPos/* to LatLng */, 
-              3956.6/* radius of the earth, earths radius in miles == 3956.6 */ 
-            );
-        
-          if (distance <= .5) { //less or equal to 1/2 miles
-            var marker = new google.maps.Marker({
-              map: self.map,
-              animation: google.maps.Animation.DROP,
-              position: foodPos//LatLng
-            });              
-          }
-       });
-       
-
+     var self = this;
+   
+     this.collection.each(function(truck) {
+       var foodPos = new google.maps.LatLng(truck.get('latitude'), 
+                                            truck.get('longitude'));
+                                          
+       var distance = 
+         google.maps.geometry.spherical.computeDistanceBetween(
+            loc/* from LatLng */, 
+            foodPos/* to LatLng */, 
+            3956.6/* radius of the earth, earth's radius in miles == 3956.6 */ 
+          );
+    
+        if (distance <= .5) { //less or equal to 1/2 miles
+          
+          //add to collection of trucks near location
+          self.trucksInRange.add({name: truck.get('applicant'), 
+                                  descr: truck.get('fooditems')});
+          
+          // If a new truck is added, create the proper views and render
+          var truckView = new FoodTruckFinder.Views.TruckView({ model: truck, map: self.map, foodPos: foodPos });    
+                
+        }
+     });
     
   },
-  
-  // add markers to the map and zooms
-  // addMarker: function() {
-  //   var myLatlng = new google.maps.LatLng(37.7577,-122.4376);
-  //   var marker = new google.maps.Marker({
-  //       position: myLatlng,
-  //       animation: google.maps.Animation.DROP,
-  //       map: this.map,
-  //       title: "Hello World!",
-  //       descr: "Helloooo"
-  //   });
-  //   this.map.setCenter(marker.getPosition());
-  //   this.map.setZoom(12);
-  // },
   
   setCenter: function(loc) {
     var marker = new google.maps.Marker({
@@ -188,7 +164,6 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
         descr: "Helloooo"
     });
     this.map.setCenter(marker.getPosition());
-    // this.map.setZoom(3);
   },
   
   //fades in next input field

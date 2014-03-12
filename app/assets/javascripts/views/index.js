@@ -89,20 +89,28 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     console.log('findFood');
     this.codeAddress(); //geocode the given address
     var speed = 700;
-    var self = this;
+    
+    var width = $('.'+this.className).width();
+    var adjHeight = $('.'+this.className).height()+40;
+    console.log(adjHeight);
     //position form and fade in map
-    // var options = {
-    //  "border-top": "80px solid black",
-    //  "border-left": "60px solid transparent",
-    //  "border-right": "60px solid transparent",
-    //  "top": "-300px",
-    //  "width": "770px"
-    // };
-    this.$el.parent().animate({'top': '-340px', 'width': '770px', 'border-radius': '15px'}, speed, function() {
-                                 $('.form-container').css({visibility: 'hidden'});
-                               });
-    //height of header div
-    $('#map-canvas').animate({opacity: 1, top: '-385px'}, speed);
+    var cssOptions = {
+     'top': '-'+adjHeight+'px', //nudge view upwards, showing only a peek
+     'width': width+'px',
+     'border-radius': '15px'
+    };
+    
+    console.log(cssOptions['top']);
+    
+    console.log($('.content').css('height'));
+    this.$el.parent().animate(cssOptions, speed, function() {
+      $('.form-container').css({visibility: 'hidden'});
+    });
+    
+    //top = - height of header el div
+    // var headerHeight = $('.content').css('height');
+    // console.log(headerHeight);
+    $('#map-canvas').animate({opacity: 1, top: '-350px'}, speed);
   },
   
   //geoCode the given address
@@ -137,7 +145,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   computeDistance: function(loc) {
 
      var self = this;
-   
+     var numTrucksInRange = 0;
      this.collection.each(function(truck) {
        var foodPos = new google.maps.LatLng(truck.get('latitude'), 
                                             truck.get('longitude'));
@@ -150,7 +158,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
           );
     
         if (distance <= .5) { //less or equal to 1/2 miles
-          
+          numTrucksInRange++;
           //add to collection of trucks near location
           self.trucksInRange.add({name: truck.get('applicant'), 
                                   descr: truck.get('fooditems')});
@@ -160,7 +168,15 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
                 
         }
      });
+     
+     this.displaySummary(numTrucksInRange);
     
+  },
+  
+  displaySummary: function(numTrucksInRange) {
+    var result = numTrucksInRange+" food trucks found near "+$('#pac-input').val();
+    
+    this.$el.parent().append('<div class="result">'+result+'</div>')
   },
   
   setCenter: function(loc) {

@@ -5,6 +5,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   
   initialize: function(options) {
     this.trucksInRange = options['trucksInRange'];
+    this.infoWindow = options['infoWindow'];
   },
   
   events: {
@@ -91,26 +92,28 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     var speed = 700;
     
     var width = $('.'+this.className).width();
-    var adjHeight = $('.'+this.className).height()+40;
+    var adjHeight = $('.'+this.className).height()+100;
+    var height = this.$el.parent().height();
     console.log(adjHeight);
+    console.log(height);
     //position form and fade in map
     var cssOptions = {
-     'top': '-'+adjHeight+'px', //nudge view upwards, showing only a peek
-     'width': width+'px',
+     'top': '-'+height+'px', //nudge view upwards
+     // 'width': width+'px',
      'border-radius': '15px'
     };
     
-    console.log(cssOptions['top']);
-    
+    var self = this;
     console.log($('.content').css('height'));
     this.$el.parent().animate(cssOptions, speed, function() {
-      $('.form-container').css({visibility: 'hidden'});
+      // $('.form-container').css({visibility: 'hidden'});
+      self.$el.parent().after('<div class="result">YO</div>');
     });
     
     //top = - height of header el div
     // var headerHeight = $('.content').css('height');
     // console.log(headerHeight);
-    $('#map-canvas').animate({opacity: 1, top: '-350px'}, speed);
+    $('#map-canvas').animate({opacity: 1, top: '-'+height+'px'}, speed);
   },
   
   //geoCode the given address
@@ -164,7 +167,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
                                   descr: truck.get('fooditems')});
           
           // If a new truck is added, create the proper views and render
-          var truckView = new FoodTruckFinder.Views.TruckView({ model: truck, map: self.map, foodPos: foodPos });    
+          var truckView = new FoodTruckFinder.Views.TruckView({ model: truck, map: self.map, foodPos: foodPos, infoWindow: self.infoWindow });    
                 
         }
      });
@@ -176,7 +179,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   displaySummary: function(numTrucksInRange) {
     var result = numTrucksInRange+" food trucks found near "+$('#pac-input').val();
     
-    this.$el.parent().append('<div class="result">'+result+'</div>')
+    // this.$el.parent().append('<div class="result">'+result+'</div>')
   },
   
   setCenter: function(loc) {

@@ -31,7 +31,6 @@ body {
 .content {
   z-index: 10;
   position: relative;
-  background-color: white;
   margin: 0 auto;
 }
 
@@ -83,4 +82,5 @@ h1 {
   position: absolute; 
   bottom: 0; 
   padding: 10px;
+  z-index: 10;
 }

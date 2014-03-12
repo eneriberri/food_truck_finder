@@ -3,6 +3,7 @@ FoodTruckFinder.Routers.Router = Backbone.Router.extend({
     this.$rootEl = options['$rootEl'];
     this.allTrucks = options['allTrucks'];
     this.trucksInRange = options['trucksInRange'];
+    this.infoWindow = options['infoWindow'];
   },
   
   routes: {
@@ -12,7 +13,8 @@ FoodTruckFinder.Routers.Router = Backbone.Router.extend({
   index: function() {
     var indexView = new FoodTruckFinder.Views.Index(
                                               {collection: this.allTrucks,
-                                              'trucksInRange': this.trucksInRange});
+                                              'trucksInRange': this.trucksInRange,
+                                              'infoWindow': this.infoWindow});
     this._swapView(indexView);
     indexView.searchArea(); //sets up search box
   },

@@ -26,12 +26,22 @@ FoodTruckFinder.Views.TruckView = Backbone.View.extend({
       id : this.model.get('objectid')
     }); 
     
-    google.maps.event.addListener(this.marker, 'mouseover', 
-                                  this.showTruckDetail.bind(this));
+    var infoWindow = options['infoWindow'];
+    var self = this;
+    google.maps.event.addListener(this.marker, 'mouseover', function() {
+      var content = '<div>' + self.model.get('applicant') + '</div>';
+      infoWindow.setContent(content);
+      infoWindow.open(this.map, self.marker);
+    });
   },
   
   showTruckDetail: function() {
     console.log(this.model.get('applicant'));
+    
+    var content = '<div>' + this.model.get('applicant') + '</div>'
+    var infowindow = new google.maps.InfoWindow({ content: content });
+    
+    infowindow.open(this.map, this.marker);
     
     //bounce once
     this.marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -43,7 +53,6 @@ FoodTruckFinder.Views.TruckView = Backbone.View.extend({
  //      });
  //    }, 300);
     
-    this.render();
   },
   
   hideTruckDetail: function() {

@@ -2,30 +2,6 @@
 <html>
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <style type="text/css">
-      html { 
-        height: 100%; 
-      }
-      
-      body { 
-        height: 100%; 
-        margin: 15px;
-        position: relative;
-      }
-      
-      #map-canvas { 
-        top: 50%;
-        height: 100%; 
-        opacity: .4;
-      }
-      
-      .content {
-        position: absolute;
-        top: 0;
-        margin-top: 15px;
-        z-index: 10;
-      }
-    </style>
     <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBuBbQW3XvtB1o5QWz3dkF9E0U9Y6MKujw&libraries=places,geometry&sensor=false">
     </script>
@@ -34,5 +10,12 @@
   <body>
     <div class="content"></div>
     <div id="map-canvas"/>
+    
+    
+    <!-- page border -->
+    <div id="left"></div>
+    <div id="right"></div>
+    <div id="top"></div>
+    <div id="bottom"></div>
   </body>
 </html>

@@ -12,6 +12,29 @@
  *= require_tree .
  */
 
+html { 
+  height: 100%; 
+}
+
+body { 
+  height: 100%; 
+  margin: 0 auto;
+  position: relative;
+  text-align: center;
+}
+
+#map-canvas { 
+  height: 100%; 
+  opacity: .3;
+}
+
+.content {
+  z-index: 10;
+  position: relative;
+  background-color: white;
+  margin: 0 auto;
+}
+
 body {
   font-family: 'Raleway', sans-serif;
   letter-spacing: 2px;
@@ -22,14 +45,15 @@ body {
 input {
   outline: none;
   border: none;
+  border-bottom: 1px solid #595959;
   font-size: 24px;
   letter-spacing: 2px;
 }
 
 .hidden {
-  display: none;
   position: relative;
   top: 10px;
+  margin-bottom: 10px;
 }
 
 #pac-input {
@@ -38,15 +62,45 @@ input {
 
 button {
   border: none;
-  color: white;
-  background-color: black;
-  padding: 10px;
+  border-radius: 10px;
+  background-color: #00b7ef;
+  padding: 15px;
   font-size: 16px;
 }
 
 .form-container {
-  margin-left: auto;
-  margin-right: auto;
-  background-color: rgba(255,255,255,1);
-  padding: 10px;
+  display: inline-block;
+  padding: 30px;
+  text-align: center;
+  border-radius: 15px;
 }
+
+h1 {
+  margin-top: auto;
+}
+
+/*body border*/
+#top, #bottom, #left, #right {
+  background: #fff;
+  position: fixed;
+}
+
+#top {
+  position: absolute;
+}
+
+#left, #right {
+  top: 0; bottom: 0;
+  width: 20px;
+}
+
+#left { left: 0; }
+#right { right: 0; }
+		
+#top, #bottom {
+  left: 0; right: 0;
+  height: 20px;
+}
+
+#top { top: 0; }
+#bottom { bottom: 0; }

@@ -1,6 +1,8 @@
 FoodTruckFinder.Views.Index = Backbone.View.extend({
   template: JST['index'],
   
+  className: "form-container",
+  
   initialize: function(options) {
     this.trucksInRange = options['trucksInRange'];
   },
@@ -15,7 +17,6 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
 
   render: function() {
     var renderedHTML = this.template({trucks: this.collection});
-    console.log(this.collection);
     this.initializeMap();
     this.$el.html(renderedHTML);
     return this;
@@ -87,14 +88,21 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     e.preventDefault();
     console.log('findFood');
     this.codeAddress(); //geocode the given address
-    
-    var speed = 1000;
-    //fade in map and fade out form
+    var speed = 700;
     var self = this;
-    $('#map-canvas').animate({opacity: 1, top: 0}, speed, function(){
-      $('.form-container').fadeOut(speed);
-    });
-    
+    //position form and fade in map
+    // var options = {
+    //  "border-top": "80px solid black",
+    //  "border-left": "60px solid transparent",
+    //  "border-right": "60px solid transparent",
+    //  "top": "-300px",
+    //  "width": "770px"
+    // };
+    this.$el.parent().animate({'top': '-340px', 'width': '770px', 'border-radius': '15px'}, speed, function() {
+                                 $('.form-container').css({visibility: 'hidden'});
+                               });
+    //height of header div
+    $('#map-canvas').animate({opacity: 1, top: '-385px'}, speed);
   },
   
   //geoCode the given address
@@ -170,9 +178,9 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   displayNext: function(e) {
     var $nextInput = $($(e.target).parent().next()[0]);
     
-    $nextInput.fadeIn(function() {
-      $nextInput.animate({top: 0});
-    });
+    // $nextInput.fadeIn(function() {
+    //   $nextInput.animate({top: 0, "padding-bottom": 0});
+    // });
     
   }
   

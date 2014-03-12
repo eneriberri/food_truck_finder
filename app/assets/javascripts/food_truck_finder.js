@@ -5,7 +5,7 @@ window.FoodTruckFinder = {
   Collections: {},
   Views: {},
   Routers: {},
-  initialize: function() {
+  initialize: function($rootEl) {
     var trucks = new FoodTruckFinder.Collections.FoodTrucks();
     var trucksInRange = new FoodTruckFinder.Collections.TrucksInRange();
     var infoWindow = new google.maps.InfoWindow({}); //marker info
@@ -13,7 +13,7 @@ window.FoodTruckFinder = {
     trucks.fetch({
       success: function() {
         new FoodTruckFinder.Routers.Router({
-          "$rootEl": $(".content"),
+          "$rootEl": $rootEl,
           "allTrucks": trucks,
           "trucksInRange": trucksInRange,
           "infoWindow": infoWindow
@@ -27,5 +27,5 @@ window.FoodTruckFinder = {
 };
 
 $(document).ready(function(){
-  FoodTruckFinder.initialize();
+  FoodTruckFinder.initialize($(".content"));
 });

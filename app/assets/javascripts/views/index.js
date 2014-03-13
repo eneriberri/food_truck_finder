@@ -6,7 +6,6 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   initialize: function(options) {
     this.trucksInRange = options['trucksInRange'];
     this.infoWindow = options['infoWindow'];
-    console.log($('.back-arrow'));
   },
   
   events: {
@@ -87,13 +86,10 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
 
     this.codeAddress(); //geocode the given address
     var speed = 700;
-
-    var height = this.$el.parent().height();
+    //+ 1 for bottom border
+    var height = this.$el.parent().height()+1;
     //position form and fade in map
-    var cssOptions = {
-     'top': '-'+height+'px',
-     'border-radius': '15px'
-    };
+    var cssOptions = {'top': '-'+height+'px'};
     
     var self = this;
 
@@ -175,7 +171,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   
   displayArrow: function() {
     this.$el.parent().after('<a href="#" class="back-arrow">^</a>');
-    $('.back-arrow').animate({top: '-10px', 'z-index': '10'}, 1000);
+    $('.back-arrow').animate({top: '-10px'}, 1000);
     $('.back-arrow').on('click', this.replay.bind(this));
   },
   
@@ -183,18 +179,34 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     e.preventDefault();
     console.log('replay');
     
-    $('.back-arrow').animate({top: '-80px'});
+    $('.back-arrow').animate({top: '-80px'}, function() {
+      $('.back-arrow').remove();
+    });
     
     var height = this.$el.parent().height();
     //position form and fade in map
-    var cssOptions = {
-     'top': '0',
-     'border-radius': '15px'
-    };
+    var cssOptions = {'top': '0'};
     var speed = 1000;
-    this.$el.parent().animate(cssOptions, speed);
-    $('#map-canvas').animate({opacity: 1, top: height+'px'}, speed);
+    console.log(height);
     
+    //hide form and show map
+    this.$el.parent().animate(cssOptions, speed);
+    $('#map-canvas').animate({top: 0}, speed);
+    
+    
+    $('.result').animate({bottom: '-38px'}, speed, function() {
+      $('.result').remove();
+    });
+    
+    this.clearForm();
+    
+    //show new map cleared of prev markers 
+    this.initializeMap();
+  },
+  
+  //clears form of prior input
+  clearForm: function() {
+    $('input').each(function(i,input) { $(input).val(''); });
   },
   
   setCenter: function(loc) {

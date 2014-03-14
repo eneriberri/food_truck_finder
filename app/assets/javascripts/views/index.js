@@ -141,17 +141,14 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
      var self = this;
      var numTrucksInRange = 0;
      
-     //for every truck, grab their pos
+     //grab trucks' position
      this.collection.each(function(truck) {
        var foodPos = new google.maps.LatLng(truck.get('latitude'), 
                                             truck.get('longitude'));
                                           
-       var distance = 
-         google.maps.geometry.spherical.computeDistanceBetween(
-            loc/* from LatLng */, 
-            foodPos/* to LatLng */, 
-            3956.6/* radius of the earth, earth's radius in miles == 3956.6 */ 
-          );
+       var distance = //(from latLong, to latLong, radius of earth in miles) 
+         google.maps.geometry.spherical.computeDistanceBetween(loc, foodPos, 3956.6);
+         
         if (distance <= .5) { //less or equal to 1/2 miles
           numTrucksInRange++;
           //add to collection of trucks near location
@@ -171,25 +168,13 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     
   },
   
+  //displays result summary in bottom left corner
   displaySummary: function(numTrucksInRange) {
     var result = numTrucksInRange+" food trucks found near "
                                  +$('#address').val();
     
     this.container.after('<div class="result">'+result+'</div>');
     $('.result').animate({bottom: 0});
-    
-    var self = this;
-    google.maps.event.addListener(this.marker, 'mouseover', function() {
-      
-      // bounce once
-      self.marker.setAnimation(google.maps.Animation.BOUNCE);
-      self.marker.setAnimation(null);
-      
-      var content = '<div><strong>'+result+'</div>';
-                     
-      infoWindow.setContent(content);
-      infoWindow.open(this.map, self.marker);
-    });
   },
   
   //animates into view the tab to perform another search

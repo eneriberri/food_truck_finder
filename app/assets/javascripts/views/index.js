@@ -28,9 +28,8 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
       zoom: 13,
       center: new google.maps.LatLng(37.7577,-122.4376)
     };
-    
-    this.map = new google.maps.Map(document.getElementById('map-canvas'),
-      mapOptions);
+    var canvas = document.getElementById('map-canvas');
+    this.map = new google.maps.Map(canvas, mapOptions);
   },
     
   
@@ -68,16 +67,15 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     e.preventDefault();
 
     this.codeAddress(); //geocode the given address
-    var speed = 700;
     //+ 1 for bottom border
     var height = this.container.height()+1;
     //position form and fade in map
     var cssOptions = {'top': '-'+height+'px'};
 
-    this.container.animate(cssOptions, speed);
-    
+    this.container.animate(cssOptions);
+    cssOptions['opacity'] = 1;
     //top = - height of header el div
-    $('#map-canvas').animate({opacity: 1, top: '-'+height+'px'}, speed);
+    $('#map-canvas').animate(cssOptions);
     
     this.displayBackTab();
   },
@@ -96,6 +94,16 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
         //sets address marker
         var marker = new google.maps.Marker({
             map: self.map,
+            icon: {
+              path: fontawesome.markers.MAP_MARKER,
+              scale: 0.5,
+              strokeWeight: 0.2,
+              strokeColor: 'black',
+              strokeOpacity: 1,
+              fillColor: '#00bbf9',
+              fillOpacity: .8,
+            },
+            clickable: false,
             position: loc
         });
         

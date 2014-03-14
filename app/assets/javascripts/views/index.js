@@ -6,11 +6,13 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   initialize: function(options) {
     this.trucksInRange = options['trucksInRange'];
     this.infoWindow = options['infoWindow'];
+    this.container = options['container'];
   },
   
   events: {
     'click button': 'findFood',
-    'click .back-arrow': 'replay'
+    'click .back-arrow': 'replay',
+    'hover .back-arrow': 'showNewSearch'
   },
 
   render: function() {
@@ -30,49 +32,30 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     this.map = new google.maps.Map(document.getElementById('map-canvas'),
       mapOptions);
   },
-  
+    
   
   //autcomplete search box
   searchArea: function() {    
     var self = this;
   
-    var markers = [];
-
-    // Create the search box and link it to the UI element.
-    var input = document.getElementById('pac-input');
-
+    // Create the search box and link it to input field
+    var input = document.getElementById('address');
+  
     var searchBox = new google.maps.places.SearchBox(input);
-
+  
     // Listen for the event fired when the user selects an item from the
     // pick list. Retrieve the matching places for that item.
     google.maps.event.addListener(searchBox, 'places_changed', function() {
-      var places = searchBox.getPlaces();
-  
-      for (var i = 0, marker; marker = markers[i]; i++) {
-        marker.setMap(null);
-      }
-  
-      // For each place, get the icon, place name, and location.
-      var bounds = new google.maps.LatLngBounds();
-      for (var i = 0, place; place = places[i]; i++) {
-        var image = {
-          url: place.icon,
-          size: new google.maps.Size(71, 71),
-          origin: new google.maps.Point(0, 0),
-          anchor: new google.maps.Point(17, 34),
-          scaledSize: new google.maps.Size(25, 25)
-        };
-  
-        bounds.extend(place.geometry.location);
-      }
-      
+      var place = searchBox.getPlaces()[0];
+                
       //set center to input address and zoom
+      var bounds = new google.maps.LatLngBounds();       
+      bounds.extend(place.geometry.location);     
       self.map.setCenter(bounds.getCenter());
-      self.map.setZoom(17);
+      self.map.setZoom(14);
     });
-
-    // Bias the SearchBox results towards places that are within the bounds of the
-    // current map's viewport.
+    
+    // Bias the SearchBox results towards places in SF (map's viewport)
     google.maps.event.addListener(this.map, 'bounds_changed', function() {
       var bounds = self.map.getBounds();
       searchBox.setBounds(bounds);
@@ -87,24 +70,22 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     this.codeAddress(); //geocode the given address
     var speed = 700;
     //+ 1 for bottom border
-    var height = this.$el.parent().height()+1;
+    var height = this.container.height()+1;
     //position form and fade in map
     var cssOptions = {'top': '-'+height+'px'};
-    
-    var self = this;
 
-    this.$el.parent().animate(cssOptions, speed);
+    this.container.animate(cssOptions, speed);
     
     //top = - height of header el div
     $('#map-canvas').animate({opacity: 1, top: '-'+height+'px'}, speed);
     
-    this.displayArrow();
+    this.displayBackTab();
   },
   
   //geoCode the given address
   codeAddress: function() {
     var self = this;
-    var address = $('#pac-input').val();
+    var address = $('#address').val();
     geocoder = new google.maps.Geocoder();
     
     geocoder.geocode({'address': address}, function(results, status) {
@@ -121,7 +102,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
         self.computeDistance(loc);
         
       } else {
-        console.log("Geocode was not successful for the following reason: " + status);
+        console.log("Geocode was not successful: " + status);
       }
     });
   
@@ -134,6 +115,8 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
 
      var self = this;
      var numTrucksInRange = 0;
+     
+     //for every truck, grab their pos
      this.collection.each(function(truck) {
        var foodPos = new google.maps.LatLng(truck.get('latitude'), 
                                             truck.get('longitude'));
@@ -151,8 +134,11 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
           self.trucksInRange.add({name: truck.get('applicant'), 
                                   descr: truck.get('fooditems')});
           
-          // If a new truck is added, create the proper views and render
-          var truckView = new FoodTruckFinder.Views.TruckView({ model: truck, map: self.map, foodPos: foodPos, infoWindow: self.infoWindow });    
+          // If a new truck is added, create the proper view
+          var truckView = new FoodTruckFinder.Views.TruckView({ model: truck, 
+                                                                map: self.map, 
+                                                                foodPos: foodPos, 
+                                                                infoWindow: self.infoWindow });    
                 
         }
      });
@@ -163,38 +149,44 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   
   displaySummary: function(numTrucksInRange) {
     var result = numTrucksInRange+" food trucks found near "
-                                 +$('#pac-input').val();
+                                 +$('#address').val();
     
-    this.$el.parent().after('<div class="result">'+result+'</div>');
+    this.container.after('<div class="result">'+result+'</div>');
     $('.result').animate({bottom: 0});
   },
   
-  displayArrow: function() {
-    this.$el.parent().after('<a href="#" class="back-arrow">^</a>');
-    $('.back-arrow').animate({top: '-10px'}, 1000);
+  //animates into view the tab to perform another search
+  displayBackTab: function() {
+    this.container.after('<a href="#" class="back-arrow"><span class="new-search">new search</span>^</a>');
+    $('.back-arrow').animate({top: '-35px'});
     $('.back-arrow').on('click', this.replay.bind(this));
+    $('.back-arrow').on('mouseenter', this.showNewSearch.bind(this, 0));
   },
   
+  showNewSearch: function(pos, speed) {
+    $('.back-arrow').animate({top: pos}, speed);
+    
+    
+  },
+  
+  //positions form back into view, clearing 
+  //form and map of prior search
   replay: function(e) {
     e.preventDefault();
-    console.log('replay');
     
-    $('.back-arrow').animate({top: '-80px'}, function() {
+    $('.back-arrow').animate({top: '-100px'}, function() {
       $('.back-arrow').remove();
     });
     
-    var height = this.$el.parent().height();
+    var height = this.container.height();
     //position form and fade in map
-    var cssOptions = {'top': '0'};
-    var speed = 1000;
-    console.log(height);
     
     //hide form and show map
-    this.$el.parent().animate(cssOptions, speed);
-    $('#map-canvas').animate({top: 0}, speed);
+    this.container.animate({top: 0});
+    $('#map-canvas').animate({top: 0});
     
-    
-    $('.result').animate({bottom: '-38px'}, speed, function() {
+    //animate prior result and clear it from DOM
+    $('.result').animate({bottom: '-38px'}, 1000, function() {
       $('.result').remove();
     });
     
@@ -207,17 +199,6 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   //clears form of prior input
   clearForm: function() {
     $('input').each(function(i,input) { $(input).val(''); });
-  },
-  
-  setCenter: function(loc) {
-    var marker = new google.maps.Marker({
-        position: loc,
-        animation: google.maps.Animation.DROP,
-        map: this.map,
-        title: "Hello World!",
-        descr: "Helloooo"
-    });
-    this.map.setCenter(marker.getPosition());
   }
   
 })

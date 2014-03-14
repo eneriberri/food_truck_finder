@@ -19,7 +19,8 @@ FoodTruckFinder.Views.TruckView = Backbone.View.extend({
       marker.setAnimation(null);
       
       var content = '<div><strong>'+self.model.get('applicant')+
-                     '</strong><p>'+self.model.get('address')+'</p></div>';
+                     '</strong><p>'+self.model.get('address')+
+                     '</p></div>';
                      
       infoWindow.setContent(content);
       infoWindow.open(this.map, marker);

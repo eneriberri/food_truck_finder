@@ -17,13 +17,13 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
 
   render: function() {
     var renderedHTML = this.template({trucks: this.collection});
-    this.initializeMap();
+    this.createMap();
     this.$el.html(renderedHTML);
     return this;
   },
   
-  // initialize the map
-  initializeMap: function(){
+  // create map centered on San Francisco
+  createMap: function(){
     var mapOptions = {
       zoom: 13,
       center: new google.maps.LatLng(37.7577,-122.4376)
@@ -62,9 +62,9 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     
   },
   
+  //ensure no blanks before calculating results
   validateInput: function(e) {
     e.preventDefault();
-    if(e.keyCode === 13) return; //prevent early submissions
     
     var input = $('input');
     var noneBlank = true;
@@ -72,13 +72,15 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
       var currentInput = $(input[i]);
       if(currentInput.val() === "") {
         $(currentInput).addClass('animated shake');
-        noneBlank = false;   
+        noneBlank = false;  
+        //removes shake animation class after animation finishes
         $(currentInput).one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
           $('.animated.shake').removeClass('animated shake');
         });
       }
     }
     
+    //if text fields are filled, run results
     if(noneBlank) this.findFood();
   },
   
@@ -109,7 +111,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
         var loc = results[0].geometry.location;
         self.map.setCenter(loc);
         
-        //sets address marker
+        //sets unique marker for input address
         self.marker = new google.maps.Marker({
             map: self.map,
             icon: {
@@ -125,18 +127,15 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
             position: loc
         });
         
+        self.map.setZoom(15);
         self.computeDistance(loc);
         
-      } else {
-        console.log("Geocode was not successful: " + status);
       }
     });
   
   },
 
-  //the distance function defaults to km.  
-  //to use miles add the radius of the earth in miles as the 3rd param.
-  //earths radius in miles == 3956.6
+  //compute distance between loc and trucks
   computeDistance: function(loc) {
 
      var self = this;
@@ -153,7 +152,6 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
             foodPos/* to LatLng */, 
             3956.6/* radius of the earth, earth's radius in miles == 3956.6 */ 
           );
-    
         if (distance <= .5) { //less or equal to 1/2 miles
           numTrucksInRange++;
           //add to collection of trucks near location
@@ -174,13 +172,11 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   },
   
   displaySummary: function(numTrucksInRange) {
-    console.log(this.marker);
-    console.log('displaySummary');
     var result = numTrucksInRange+" food trucks found near "
                                  +$('#address').val();
     
-    // this.container.after('<div class="result">'+result+'</div>');
-    // $('.result').animate({bottom: 0});
+    this.container.after('<div class="result">'+result+'</div>');
+    $('.result').animate({bottom: 0});
     
     var self = this;
     google.maps.event.addListener(this.marker, 'mouseover', function() {
@@ -198,16 +194,15 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   
   //animates into view the tab to perform another search
   displayBackTab: function() {
-    this.container.after('<a href="#" class="back-arrow"><span class="new-search">new search</span>^</a>');
+    this.container.after('<a href="#" class="back-arrow">'+
+                         '<span class="new-search">new search</span>^</a>');
     $('.back-arrow').animate({top: '-35px'});
     $('.back-arrow').on('click', this.replay.bind(this));
     $('.back-arrow').on('mouseenter', this.showNewSearch.bind(this, 0));
   },
   
   showNewSearch: function(pos, speed) {
-    $('.back-arrow').animate({top: pos}, speed);
-    
-    
+    $('.back-arrow').animate({top: pos}, speed);    
   },
   
   //positions form back into view, clearing 
@@ -215,6 +210,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   replay: function(e) {
     e.preventDefault();
     
+    //animate back up and remove from DOM
     $('.back-arrow').animate({top: '-100px'}, function() {
       $('.back-arrow').remove();
     });
@@ -233,8 +229,8 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     
     this.clearForm();
     
-    //show new map cleared of prev markers 
-    this.initializeMap();
+    //show map cleared of prev markers and re-centered over SF 
+    this.createMap();
   },
   
   //clears form of prior input

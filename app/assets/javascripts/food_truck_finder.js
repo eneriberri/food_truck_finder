@@ -8,7 +8,6 @@ window.FoodTruckFinder = {
   initialize: function($rootEl) {
     var trucks = new FoodTruckFinder.Collections.FoodTrucks();
     var trucksInRange = new FoodTruckFinder.Collections.TrucksInRange();
-    var infoWindow = new google.maps.InfoWindow({}); //marker info
     
     //fetch data and initialize router
     trucks.fetch({
@@ -16,8 +15,7 @@ window.FoodTruckFinder = {
         new FoodTruckFinder.Routers.Router({
           "$rootEl": $rootEl,
           "allTrucks": trucks,
-          "trucksInRange": trucksInRange,
-          "infoWindow": infoWindow
+          "trucksInRange": trucksInRange
         });
     
         Backbone.history.start();

@@ -33,8 +33,8 @@ body {
   position: relative;
   margin: 0 auto;
   border-bottom: 1px solid #686868;
-/*  background-image: url('food_truck.png');
-  background-size: cover;*/
+  background-image: url('food_truck.png');
+  background-size: cover;
 }
 
 body {
@@ -129,4 +129,9 @@ h1 {
 a {
   color: black;
   text-decoration: none;
+}
+
+/*food truck marker view*/
+.title {
+  font-decoration: underline;
 }

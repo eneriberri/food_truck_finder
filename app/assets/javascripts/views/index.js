@@ -5,8 +5,8 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   
   initialize: function(options) {
     this.trucksInRange = options['trucksInRange'];
-    this.infoWindow = options['infoWindow'];
     this.container = options['container'];
+    this.infoWindow = new google.maps.InfoWindow({}); //marker info
   },
   
   events: {
@@ -92,11 +92,11 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
         self.map.setCenter(loc);
         
         //sets address marker
-        var marker = new google.maps.Marker({
+        self.marker = new google.maps.Marker({
             map: self.map,
             icon: {
               path: fontawesome.markers.MAP_MARKER,
-              scale: 0.5,
+              scale: .8,
               strokeWeight: 0.2,
               strokeColor: 'black',
               strokeOpacity: 1,
@@ -156,11 +156,26 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   },
   
   displaySummary: function(numTrucksInRange) {
+    console.log(this.marker);
+    console.log('displaySummary');
     var result = numTrucksInRange+" food trucks found near "
                                  +$('#address').val();
     
-    this.container.after('<div class="result">'+result+'</div>');
-    $('.result').animate({bottom: 0});
+    // this.container.after('<div class="result">'+result+'</div>');
+    // $('.result').animate({bottom: 0});
+    
+    var self = this;
+    google.maps.event.addListener(this.marker, 'mouseover', function() {
+      
+      // bounce once
+      self.marker.setAnimation(google.maps.Animation.BOUNCE);
+      self.marker.setAnimation(null);
+      
+      var content = '<div><strong>'+result+'</div>';
+                     
+      infoWindow.setContent(content);
+      infoWindow.open(this.map, self.marker);
+    });
   },
   
   //animates into view the tab to perform another search

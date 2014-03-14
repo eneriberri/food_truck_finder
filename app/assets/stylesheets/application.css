@@ -8,6 +8,7 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
+ *= require animate.css
  *= require_self
  *= require_tree .
  */
@@ -21,6 +22,7 @@ body {
   margin: 0 auto;
   position: relative;
   text-align: center;
+  color: #2F3738;
 }
 
 #map-canvas { 
@@ -50,6 +52,7 @@ input {
   border-bottom: 1px solid #595959;
   font-size: 20px;
   letter-spacing: 2px;
+  background-color: transparent;
 }
 
 .field {
@@ -63,18 +66,20 @@ input {
 }
 
 button {
-  border: 5px solid #e9e9e9;
+  border: 5px solid #e86868;
   transition: background-color 0.3s ease,
-              border 0.3s ease;
-  background-color: white;
+              border 0.3s ease,
+              color 0.3s ease;
+  background-color: transparent;
   padding: 15px;
   font-size: 16px;
 }
 
 button:hover {
-  background-color: #e9e9e9;
+  background-color: #e86868;
   border-radius: 10px;
   cursor: pointer;
+  color: #fafafa;
 }
 
 .form-container {
@@ -86,7 +91,7 @@ button:hover {
 h1 {
   margin-top: auto;
   font-family: 'Sail', cursive;
-  text-shadow: 4px 4px #e5e5e5;
+  text-shadow: 4px 4px rgba(229, 117, 117, 0.3);
 }
 
 /*displays search results in bottom right corner*/
@@ -129,9 +134,4 @@ h1 {
 a {
   color: black;
   text-decoration: none;
-}
-
-/*food truck marker view*/
-.title {
-  font-decoration: underline;
 }

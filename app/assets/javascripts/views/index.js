@@ -10,7 +10,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   },
   
   events: {
-    'click button': 'findFood',
+    'click button': 'validateInput',
     'click .back-arrow': 'replay',
     'hover .back-arrow': 'showNewSearch'
   },
@@ -62,10 +62,28 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     
   },
   
-  // shows map and sets markers
-  findFood: function(e) {
+  validateInput: function(e) {
     e.preventDefault();
-
+    if(e.keyCode === 13) return; //prevent early submissions
+    
+    var input = $('input');
+    var noneBlank = true;
+    for(var i = 0; i < input.length; i++) {
+      var currentInput = $(input[i]);
+      if(currentInput.val() === "") {
+        $(currentInput).addClass('animated shake');
+        noneBlank = false;   
+        $(currentInput).one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
+          $('.animated.shake').removeClass('animated shake');
+        });
+      }
+    }
+    
+    if(noneBlank) this.findFood();
+  },
+  
+  // shows map and sets markers
+  findFood: function() {
     this.codeAddress(); //geocode the given address
     //+ 1 for bottom border
     var height = this.container.height()+1;

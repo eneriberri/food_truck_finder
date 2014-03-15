@@ -18,6 +18,8 @@ Backend
 
 Notes
 =========
-Data endpoint:
+Data populated from San Francisco Data:
 http://datasf.org
+
+Mobile Food Facility table:
 https://data.sfgov.org/Permitting/Mobile-Food-Facility-Permit/rqzj-sfat

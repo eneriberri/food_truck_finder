@@ -2,7 +2,7 @@ SF Food Truck Finder
 ========
 Find food trucks in San Francisco
 
-http://glacial-gorge-2760.herokuapp.com/
+http://foodtrucks-sf.herokuapp.com/
 
 ![ScreenShot](/app/assets/images/screenshot.png)
 

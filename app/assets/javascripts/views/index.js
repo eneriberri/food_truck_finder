@@ -12,7 +12,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   events: {
     'click button': 'validateInput',
     'click .back-arrow': 'replay',
-    'hover .back-arrow': 'showNewSearch'
+    'mouseenter .back-arrow': 'showNewSearch'
   },
 
   render: function() {
@@ -178,31 +178,34 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   
   //animates into view the tab to perform another search
   displayBackTab: function() {
-    // this.container.after('<a href="#" class="back-arrow">'+
-    //                      '<span class="new-search">new search</span>^</a>');
     
     //adjust to hide new search text
     var adj = this.container.height()-30;
                          
-    $('.back-arrow').animate({top: adj+'px'});
-    $('.back-arrow').on('click', this.replay.bind(this));
-    $('.back-arrow').on('mouseenter', this.showNewSearch.bind(this, '320px'));
+    $('.back-arrow').fadeIn().animate({top: adj+'px'});
   },
   
-  showNewSearch: function(pos, speed) {
-    $('.back-arrow').animate({top: pos}, speed);    
+  showNewSearch: function() {
+    $('.back-arrow').animate({top: '320px'});    
   },
   
   //positions form back into view, clearing 
   //form and map of prior search
   replay: function(e) {
     e.preventDefault();
-    $('.back-arrow').animate({top: '-200px'});
+    // $('.back-arrow').animate({top: '-200px'}, 500);
     var self = this;
-    setTimeout(function() {
+    
+    $('.back-arrow').fadeOut(function() {
       self.container.animate({top: 0});
       $('#map-canvas').animate({top: 0});
-    },100);
+    });
+    
+    self.container.animate({top: 0});
+    // setTimeout(function() {
+    //   self.container.animate({top: 0});
+    //   $('#map-canvas').animate({top: 0});
+    // },200);
     
     //animate back up and remove from DOM
     // $('.back-arrow').animate({top: '-100px'}, function() {

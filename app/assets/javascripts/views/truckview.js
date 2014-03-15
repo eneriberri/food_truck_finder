@@ -10,8 +10,10 @@ FoodTruckFinder.Views.TruckView = Backbone.View.extend({
       position: options['foodPos']//LatLng
     }); 
     
-    var infoWindow = options['infoWindow'];
     var self = this;
+    this.map = options['map']
+    var infoWindow = options['infoWindow'];
+    
     google.maps.event.addListener(marker, 'mouseover', function() {
       
       // bounce once
@@ -19,13 +21,13 @@ FoodTruckFinder.Views.TruckView = Backbone.View.extend({
       marker.setAnimation(null);
       
       var content = '<div><strong>'+self.model.get('applicant')+
-                     '</strong><p>'+self.model.get('address')+
-                     '</p></div>';
+                          '</strong><p>'+self.model.get('address')+
+                          '</p><p>'+self.model.get('fooditems')+'</p></div>';
                      
       infoWindow.setContent(content);
       infoWindow.open(this.map, marker);
     });
     
-  }
-  
-})
+  },
+
+});

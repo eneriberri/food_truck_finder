@@ -16,9 +16,8 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   },
 
   render: function() {
-    var renderedHTML = this.template({trucks: this.collection});
     this.createMap();
-    this.$el.html(renderedHTML);
+    this.$el.html(this.template);
     return this;
   },
   
@@ -179,11 +178,15 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   
   //animates into view the tab to perform another search
   displayBackTab: function() {
-    this.container.after('<a href="#" class="back-arrow">'+
-                         '<span class="new-search">new search</span>^</a>');
-    $('.back-arrow').animate({top: '-35px'});
+    // this.container.after('<a href="#" class="back-arrow">'+
+    //                      '<span class="new-search">new search</span>^</a>');
+    
+    //adjust to hide new search text
+    var adj = this.container.height()-30;
+                         
+    $('.back-arrow').animate({top: adj+'px'});
     $('.back-arrow').on('click', this.replay.bind(this));
-    $('.back-arrow').on('mouseenter', this.showNewSearch.bind(this, 0));
+    $('.back-arrow').on('mouseenter', this.showNewSearch.bind(this, '320px'));
   },
   
   showNewSearch: function(pos, speed) {
@@ -194,18 +197,21 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   //form and map of prior search
   replay: function(e) {
     e.preventDefault();
+    $('.back-arrow').animate({top: '-200px'});
+    var self = this;
+    setTimeout(function() {
+      self.container.animate({top: 0});
+      $('#map-canvas').animate({top: 0});
+    },100);
     
     //animate back up and remove from DOM
-    $('.back-arrow').animate({top: '-100px'}, function() {
-      $('.back-arrow').remove();
-    });
+    // $('.back-arrow').animate({top: '-100px'}, function() {
+    //   //position form and show partial map
+    //   this.container.animate({top: 0});
+    //   $('#map-canvas').animate({top: 0});
+    // });
     
-    var height = this.container.height();
-    //position form and fade in map
     
-    //hide form and show map
-    this.container.animate({top: 0});
-    $('#map-canvas').animate({top: 0});
     
     //animate prior result and clear it from DOM
     $('.result').animate({bottom: '-38px'}, 1000, function() {

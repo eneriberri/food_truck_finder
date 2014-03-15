@@ -7,15 +7,13 @@ window.FoodTruckFinder = {
   Routers: {},
   initialize: function($rootEl) {
     var trucks = new FoodTruckFinder.Collections.FoodTrucks();
-    var trucksInRange = new FoodTruckFinder.Collections.TrucksInRange();
     
     //fetch data and initialize router
     trucks.fetch({
       success: function() {
         new FoodTruckFinder.Routers.Router({
           "$rootEl": $rootEl,
-          "allTrucks": trucks,
-          "trucksInRange": trucksInRange
+          "allTrucks": trucks
         });
     
         Backbone.history.start();

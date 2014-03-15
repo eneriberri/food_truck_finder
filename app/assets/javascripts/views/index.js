@@ -140,9 +140,6 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
          
         if (distance <= $('#miles').val()) { //less or equal to user input miles
           numTrucksInRange++;
-          //add to collection of trucks near location
-          self.trucksInRange.add({name: truck.get('applicant'), 
-                                  descr: truck.get('fooditems')});
           
           // If a new truck is added, create the proper view
           new FoodTruckFinder.Views.TruckView({model: truck, map: self.map, foodPos: foodPos, 

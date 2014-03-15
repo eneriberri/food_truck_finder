@@ -153,7 +153,9 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   
   //displays result summary in bottom left corner
   displaySummary: function(numTrucksInRange) {  
-    var result = numTrucksInRange+" food trucks found near "+$('#address').val();                              
+    var result = '<strong>'+numTrucksInRange+
+                 '</strong> food trucks found near <strong>'+
+                 $('#address').val()+'</strong>';                              
     
     this.infoWindow.setContent(result);
     this.infoWindow.open(this.map, this.marker);
@@ -170,23 +172,22 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     $('.back-arrow').animate({top: '320px'});    
   },
   
-  //positions form back into view, clearing 
-  //form and map of prior search
+  //positions form and map back into view
   replay: function(e) {
     e.preventDefault();
-
     var self = this;
     
     $('.back-arrow').fadeOut(function() {
+      $('#map-canvas').animate({top: 0});
       self.container.animate({top: 0});
+      //repeat move effect after initial reveal
       $('#map-canvas').animate({top: 0});
     });
     
-    //move effect after delay
-    setTimeout(function() { self.container.animate({top: 0}) }, 400);
+    //complete move effect after delay
+    setTimeout(function() { self.container.animate({top: 0}) }, 100);
     
-    this.clearPriorInput();
-    
+    this.clearPriorInput();    
     //show map cleared of prev markers and re-centered over SF 
     this.createMap();
   },

@@ -14,16 +14,15 @@ FoodTruckFinder.Views.TruckView = Backbone.View.extend({
     this.map = options['map']
     var infoWindow = options['infoWindow'];
     
-    google.maps.event.addListener(marker, 'mouseover', function() {
-      
+    google.maps.event.addListener(marker, 'mouseover', function() {      
       // bounce once
       marker.setAnimation(google.maps.Animation.BOUNCE);
       marker.setAnimation(null);
-      
+    
       var content = '<strong>'+self.model.get('applicant')+
                      '</strong><p>'+self.model.get('address')+
                       '</p><p>'+self.model.get('fooditems')+'</p>';
-                     
+                   
       infoWindow.setContent(content);
       infoWindow.open(this.map, marker);
     });

@@ -72,7 +72,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
       if(currentInput.val() === "") {
         $(currentInput).addClass('animated shake');
         noneBlank = false;  
-        //removes shake animation class after animation finishes
+        //listens to end of shake animation
         $(currentInput).one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
           $('.animated.shake').removeClass('animated shake');
         });
@@ -110,7 +110,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
         var loc = results[0].geometry.location;
         self.map.setCenter(loc);
         
-        //sets unique marker for input address
+        //sets unique blue marker for input address
         self.marker = new google.maps.Marker({
             map: self.map,
             icon: {
@@ -127,19 +127,15 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
         });
         
         self.map.setZoom(15);
-        self.computeDistance(loc);
-        
+        self.computeDistance(loc);       
       }
     });
-  
   },
 
   //compute distance between loc and trucks
   computeDistance: function(loc) {
-
      var self = this;
      var numTrucksInRange = 0;
-     
      //grab trucks' position
      this.collection.each(function(truck) {
        var foodPos = new google.maps.LatLng(truck.get('latitude'), 
@@ -169,19 +165,21 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   
   //displays result summary in bottom left corner
   displaySummary: function(numTrucksInRange) {
+                   
+    
+    
     var result = numTrucksInRange+" food trucks found near "
                                  +$('#address').val();
+                              
     
-    this.container.after('<div class="result">'+result+'</div>');
-    $('.result').animate({bottom: 0});
+    this.infoWindow.setContent(result);
+    this.infoWindow.open(this.map, this.marker);
   },
   
   //animates into view the tab to perform another search
-  displayBackTab: function() {
-    
-    //adjust to hide new search text
-    var adj = this.container.height()-30;
-                         
+  displayBackTab: function() {   
+    //adjust to hide 'New Search' text
+    var adj = this.container.height()-30;                        
     $('.back-arrow').fadeIn().animate({top: adj+'px'});
   },
   
@@ -193,7 +191,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   //form and map of prior search
   replay: function(e) {
     e.preventDefault();
-    // $('.back-arrow').animate({top: '-200px'}, 500);
+
     var self = this;
     
     $('.back-arrow').fadeOut(function() {
@@ -201,34 +199,15 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
       $('#map-canvas').animate({top: 0});
     });
     
-    self.container.animate({top: 0});
-    // setTimeout(function() {
-    //   self.container.animate({top: 0});
-    //   $('#map-canvas').animate({top: 0});
-    // },200);
+    setTimeout(function() { self.container.animate({top: 0}) }, 400);
     
-    //animate back up and remove from DOM
-    // $('.back-arrow').animate({top: '-100px'}, function() {
-    //   //position form and show partial map
-    //   this.container.animate({top: 0});
-    //   $('#map-canvas').animate({top: 0});
-    // });
-    
-    
-    
-    //animate prior result and clear it from DOM
-    $('.result').animate({bottom: '-38px'}, 1000, function() {
-      $('.result').remove();
-    });
-    
-    this.clearForm();
+    this.clearPriorResult();
     
     //show map cleared of prev markers and re-centered over SF 
     this.createMap();
   },
   
-  //clears form of prior input
-  clearForm: function() {
+  clearPriorInput: function() {
     $('input').each(function(i,input) { $(input).val(''); });
   }
   

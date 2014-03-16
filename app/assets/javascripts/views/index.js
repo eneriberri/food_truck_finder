@@ -4,7 +4,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
   className: "form-container",
   
   initialize: function(options) {
-    this.trucksInRange = options['trucksInRange'];
+    this.trucksInRange = [];
     this.container = options['container'];
     this.infoWindow = new google.maps.InfoWindow({}); //marker popup box
   },
@@ -27,6 +27,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
       zoom: 13,
       center: new google.maps.LatLng(37.7577,-122.4376) //SF
     };
+    
     var canvas = document.getElementById('map-canvas');
     this.map = new google.maps.Map(canvas, mapOptions);
   },
@@ -77,87 +78,112 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
       }
     }   
     //if text fields are filled, run results
-    if(noneBlank) this.findFood();
+    if(noneBlank) this.processInput();
   },
   
   // shows map and sets markers
-  findFood: function() {
-    this.codeAddress(); //geocode the given address
-    //+ 1 for bottom border
-    var height = this.container.height()+1;
-    //position form and fade in map
-    var cssOptions = {'top': '-'+height+'px'};
-
-    this.container.animate(cssOptions);
-    cssOptions['opacity'] = 1;
-    //top = - height of header el div
-    $('#map-canvas').animate(cssOptions);
-    
+  processInput: function() {
+    this.putFoodTrucksOnMap();
+    this.bringUpMap();
     this.displayBackTab();
   },
   
-  //geoCode the given address
-  codeAddress: function() {
-    var self = this;
-    var address = $('#address').val();
-    geocoder = new google.maps.Geocoder();
+  bringUpMap: function () {
+    var height = this.container.height() + 1 // +1 for bottom border
+    var cssOptions = {'top': '-' + height + 'px'};
     
-    geocoder.geocode({'address': address}, function(results, status) {
+    this.container.animate(cssOptions);
+    cssOptions['opacity'] = 1;
+    
+    $('#map-canvas').animate(cssOptions);
+  },
+  
+  putFoodTrucksOnMap: function() {
+    var self = this;
+    
+    this.geocodeAddress(function(results, status) {
+      
+      //process location/generate trucks
       if(status == google.maps.GeocoderStatus.OK) {
         var loc = results[0].geometry.location;
         self.map.setCenter(loc);
         
-        //sets unique blue marker for input location
-        self.marker = new google.maps.Marker({
-            map: self.map,
-            icon: {
-              path: fontawesome.markers.MAP_MARKER,
-              scale: .8, strokeWeight: 0.2,
-              strokeColor: 'black', strokeOpacity: 1,
-              fillColor: '#00bbf9', fillOpacity: .8,
-            },
-            clickable: false, 
-            position: loc
-        });
+        //sets unique marker for search result and add click listener
+        self.generateSearchMarker(loc);
         
         self.map.setZoom(15); //because 15 looks nice
-        self.computeDistance(loc); 
+        self.generateNearbyTrucks(loc); 
+        self.displaySummary();
       }
     });
   },
 
-  //compute distance between loc and trucks
-  computeDistance: function(loc) {
-     var self = this;
-     var numTrucksInRange = 0;
-     //grab trucks' position
-     this.collection.each(function(truck) {
-       var foodPos = new google.maps.LatLng(truck.get('latitude'), 
-                                            truck.get('longitude'));
-                                          
-       var distance = //(from latLong, to latLong, radius of earth in miles) 
-         google.maps.geometry.spherical.computeDistanceBetween(loc, foodPos, 3956.6);
-         
-        if (distance <= $('#miles').val()) { //less or equal to user input miles
-          numTrucksInRange++;
-          
-          // If a new truck is added, create the proper view
-          new FoodTruckFinder.Views.TruckView({model: truck, map: self.map, foodPos: foodPos, 
-                                               infoWindow: self.infoWindow});    
-                
-        }
-     });
-     
-     this.displaySummary(numTrucksInRange);    
+  geocodeAddress: function(callback) {
+    var address = $('#address').val();
+    var geocoder = new google.maps.Geocoder();
+    
+    geocoder.geocode({'address': address}, callback);
+  },
+
+  //place address marker on map and listen to clicks to show summary
+  generateSearchMarker: function(loc) {
+    var self = this;
+    this.marker = new google.maps.Marker(this.inputLocMarker(loc));
+    google.maps.event.addListener(self.marker, 'click', function() {
+      self.clearMarkers();
+      self.generateNearbyTrucks(loc);
+      self.displaySummary();
+    });
   },
   
-  //displays result summary in bottom left corner
-  displaySummary: function(numTrucksInRange) {  
-    var result = '<strong>'+numTrucksInRange+
-                 '</strong> food trucks found near <strong>'+
-                 $('#address').val()+'</strong>';                              
+  inputLocMarker: function(loc) {
+    return {
+      map: this.map,
+      icon: { //special icon for input address marker
+        path: fontawesome.markers.MAP_MARKER,
+        scale: .8, strokeWeight: 0.2,
+        strokeColor: 'black', strokeOpacity: 1,
+        fillColor: '#00bbf9', fillOpacity: .8,
+      },
+      clickable: true,
+      position: loc
+      };
+  },
+
+  //compute distance between loc and trucks
+  generateNearbyTrucks: function(loc) {
+    var self = this;
     
-    this.infoWindow.setContent(result);
+    this.collection.each(function(truck) {
+      var truckPos = new google.maps.LatLng(truck.get('latitude'),
+                                            truck.get('longitude'));
+    
+      var distance = self.computeDistance(truckPos, loc);
+         
+      if (distance <= $('#miles').val()) { //less or equal to user input miles
+        // If truck within range found, create the proper view
+        var truckView = new FoodTruckFinder.Views.TruckView({model: truck, map: self.map, truckPos: truckPos, 
+                                                             infoWindow: self.infoWindow});    
+        self.trucksInRange.push(truckView);
+      }
+    });
+  },
+  
+  computeDistance: function(truckPos, loc) {
+    //(from latLong, to latLong, radius of earth in miles)
+    var distanceFromLoc = 
+      google.maps.geometry.spherical.computeDistanceBetween(loc, truckPos, 3956.6);
+      
+    return distanceFromLoc;  
+  },
+  
+  displaySummary: function() {
+    var numTrucksInRange = this.trucksInRange.length;  
+    var content = '<strong>' + numTrucksInRange +
+                 '</strong> food trucks found near <strong>' +
+                 $('#address').val() + '</strong>';                              
+    
+    this.infoWindow.setContent(content);
     this.infoWindow.open(this.map, this.marker);
   },
   
@@ -172,24 +198,28 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     $('.back-arrow').animate({top: '320px'});    
   },
   
-  //positions form and map back into view
+  //bring back form & reset map
   replay: function(e) {
     e.preventDefault();
     var self = this;
     
     $('.back-arrow').fadeOut(function() {
-      $('#map-canvas').animate({top: 0});
       self.container.animate({top: 0});
-      //repeat move effect after initial reveal
       $('#map-canvas').animate({top: 0});
     });
     
-    //complete move effect after delay
-    setTimeout(function() { self.container.animate({top: 0}) }, 100);
-    
     this.clearPriorInput();    
-    //show map cleared of prev markers and re-centered over SF 
-    this.createMap();
+    this.clearMarkers();
+    this.infoWindow.close(); //depends what route we go...
+  },
+  
+  clearMarkers: function() {
+    var noOfMarkers = this.trucksInRange.length;
+    for (var i = 0; i < noOfMarkers; i++) {
+      var truckView = this.trucksInRange.pop();
+      truckView.destroy();
+    }
+    //this.marker.setMap(null); depends on route
   },
   
   clearPriorInput: function() {

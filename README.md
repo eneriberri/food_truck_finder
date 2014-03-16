@@ -24,4 +24,8 @@ http://datasf.org
 Mobile Food Facility table:
 https://data.sfgov.org/Permitting/Mobile-Food-Facility-Permit/rqzj-sfat
 
+Minimal RoR backend. Mainly for fast deployment and future expansion.
+
 Utilizes Google Maps JavaScript API v3
+
+

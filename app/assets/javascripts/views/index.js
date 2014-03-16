@@ -210,7 +210,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
     
     this.clearPriorInput();    
     this.clearMarkers();
-    this.infoWindow.close(); //depends what route we go...
+    this.infoWindow.close();
   },
   
   clearMarkers: function() {
@@ -219,7 +219,7 @@ FoodTruckFinder.Views.Index = Backbone.View.extend({
       var truckView = this.trucksInRange.pop();
       truckView.destroy();
     }
-    //this.marker.setMap(null); depends on route
+    this.marker.setMap(null);
   },
   
   clearPriorInput: function() {
